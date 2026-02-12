@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .subscription-badge {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            padding: 8px 16px;
+            background: #51cf66;
+            border-radius: 25px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 140px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-tab.active, .nav-tab:hover {
+            background: #4facfe;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            padding-left: 45px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-danger { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%); }
+        .btn-success { background: linear-gradient(135deg, #51cf66 0%, #40c057 100%); }
+        .btn-warning { background: linear-gradient(135deg, #ffd43b 0%, #fbbf24 100%); }
+        .btn-premium { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); }
+
+        .subscription-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .subscription-tier {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .tier-free { background: rgba(255,255,255,0.2); }
+        .tier-premium { background: #ffd700; color: #333; }
+        .tier-vip { background: #ff6b6b; color: white; }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #4facfe;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .book-card {
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: #4facfe;
+        }
+
+        .book-card.borrowed { border-color: #ff6b6b; background: #fff5f5; }
+        .book-card.overdue { border-color: #ff4444; background: #ffe6e6; animation: shake 0.5s infinite; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-available { background: #d4edda; color: #155724; }
+        .status-borrowed { background: #f8d7da; color: #721c24; }
+        .status-overdue { background: #f5c6cb; color: #842029; animation: pulse 1s infinite; }
+
+        .notification {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #fff;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .review-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .review-item {
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            display: block;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6; }
+        th { background: #f8f9fa; font-weight: 600; }
+
+        @media (max-width: 768px) {
+            .nav-tabs { flex-direction: column; }
+            .book-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚  Library Management System</h1>
+            <p>Building a Brighter Future Through Books</p>
+            <div class="subscription-badge" id="subscriptionBadge">FREE</div>
+        </div>
+
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="showTab('dashboard')">Dashboard</div>
+            <div class="nav-tab" onclick="showTab('subscribe')">Subscribe</div>
+            <div class="nav-tab" onclick="showTab('register')">Register</div>
+            <div class="nav-tab" onclick="showTab('search')">🔍 Search Books</div>
+            <div class="nav-tab" onclick="showTab('books')">All Books</div>
+            <div class="nav-tab" onclick="showTab('borrow')">Borrow/Return</div>
+            <div class="nav-tab" onclick="showTab('reviews')">Reviews</div>
+            <div class="nav-tab" onclick="showTab('history')">History</div>
+            <div class="nav-tab" onclick="showTab('notifications')">Alerts</div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="tab-content active">
+            <div id="notificationsArea"></div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" id="totalBooks">25</span>
+                    Total Books
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="totalUsers">0</span>
+                    Registered Users
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="activeBorrows">3</span>
+                    Active Borrows
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="totalReviews">12</span>
+                    Total Reviews
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🎲 Random Book Suggestion</h3>
+                <div id="randomBook" class="book-card" onclick="borrowRandomBook()">
+                    <h4 id="randomBookTitle">Click to get a random book!</h4>
+                    <p id="randomBookAuthor">Discover something new...</p>
+                    <div class="status-badge status-available">Available</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription -->
+        <div id="subscribe" class="tab-content">
+            <div class="subscription-card">
+                <h2>Choose Your Plan</h2>
+                <div id="currentTier" class="subscription-tier tier-free">FREE</div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div class="card">
+                    <h3>FREE</h3>
+                    <p>₹0/month</p>
+                    <ul style="list-style: none;">
+                        <li>✅ Basic borrowing</li>
+                        <li>✅ 14 days limit</li>
+                        <li>❌ No priority</li>
+                        <li>❌ Limited search</li>
+                    </ul>
+                    <button class="btn" onclick="upgradePlan('free')">Select FREE</button>
+                </div>
+                <div class="card">
+                    <h3>PREMIUM</h3>
+                    <p>₹99/month</p>
+                    <ul style="list-style: none;">
+                        <li>✅ 30 days borrowing</li>
+                        <li>✅ Priority access</li>
+                        <li>✅ Advanced search</li>
+                        <li>✅ Book reservations</li>
+                    </ul>
+                    <button class="btn btn-premium" onclick="upgradePlan('premium')">Upgrade PREMIUM</button>
+                </div>
+                <div class="card">
+                    <h3>VIP</h3>
+                    <p>₹199/month</p>
+                    <ul style="list-style: none;">
+                        <li>✅ Unlimited borrowing</li>
+                        <li>✅ 60 days limit</li>
+                        <li>✅ VIP priority</li>
+                        <li>✅ All features + Support</li>
+                    </ul>
+                    <button class="btn btn-premium" onclick="upgradePlan('vip')">Upgrade VIP</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register -->
+        <div id="register" class="tab-content">
+            <div class="card">
+                <h3>👤 New User Registration</h3>
+                <form onsubmit="registerUser(event)">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="regName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Student ID</label>
+                        <input type="text" id="regId" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="regEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Number</label>
+                        <input type="text" id="regCourse" required>
+                    </div>
+                    <div class="form-group">
+                         <label>User Address</label>
+                         <input type="text" id="Address" required>
+                    </div>
+                    <button type="submit" class="btn">Register User</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Search Books -->
+        <div id="search" class="tab-content">
+            <div class="card">
+                <h3>🔍 Smart Books Search</h3>
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Search by title, author, genre or ISBN..." onkeyup="performSearch()">
+                </div>
+                <div id="searchResults" class="book-grid"></div>
+            </div>
+        </div>
+
+        <!-- Books -->
+        <div id="books" class="tab-content">
+            <div class="card">
+                <h3>📖 All Books</h3>
+                <div class="book-grid" id="booksGrid"></div>
+            </div>
+        </div>
+
+        <!-- Borrow/Return -->
+         <!-- <h3>📥 Borrow / 📤 Return Books</h3> -->
+        <div id="borrow" class="tab-content">
+            <h3>📥 Borrow / 📤 Return Books</h3>
+             <div class="form-group">
+                        <label>Select User</label>
+        
+                        <input type="text" id="borrowUser" placeholder="User Name" required>
+                            <!-- <option value="1">Choose user...</option> -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Book</label>
+                        <input type="text"  id="borrowBook" placeholder="Book Name" required>
+                            <!-- <option value="">Choose book...</option> -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Return Days</label>
+                        <input type="number" id="returnDays" value="14" min="1" max="60">
+                    </div>
+                    <button type="submit" class="btn">Borrow Book</button>
+                     <div class="form-group">
+                        <label>Select User</label>
+        
+                        <input type="text" id="borrowUser" placeholder="User Name" required>
+                            <!-- <option value="1">Choose user...</option> -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Book</label>
+                        <input type="text"  id="borrowBook" placeholder="Book Name" required>
+                            <!-- <option value="">Choose book...</option> -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Return Days</label>
+                        <input type="number" id="returnDays" value="14" min="1" max="60">
+
+                    </div>
+                    <div class="form-group">
+                        <label>Reviews</label>
+                        <Input type="text" id=""reviews" placeholder="Review"></Input>
+                    </div>
+                    <button type="submit" class="btn">Return Book</button>
+                   
+                
+                <form onsubmit="borrowBook(event)">
+                   
+                </form>
+
+                <h3 style="margin-top: 30px;">Active Borrows</h3>
+                <div id="activeBorrowsList"></div>
+            </div>
+        </div>
+
+        <!-- Reviews -->
+        <div id="reviews" class="tab-content">
+            <div class="card">
+                <h3>⭐ Book Reviews & Ratings</h3>
+                <div id="reviewsList"></div>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div id="history" class="tab-content">
+            <div class="card">
+                <h3>📊 Complete Transaction History</h3>
+                <button class="btn" onclick="exportHistory()" style="margin-bottom: 20px;">Export CSV</button>
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>User</th>
+                            <th>Book</th>
+                            <th>Action</th>
+                            <th>Reading Time</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div id="notifications" class="tab-content">
+            <div class="card">
+                <h3>🔔 Smart Notifications</h3>
+                <div id="allNotifications"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced Data Storage
+        let users = JSON.parse(localStorage.getItem('libraryUsers')) || [];
+        let books = JSON.parse(localStorage.getItem('libraryBooks')) || [];
+        let transactions = JSON.parse(localStorage.getItem('libraryTransactions')) || [];
+        let reviews = JSON.parse(localStorage.getItem('libraryReviews')) || [];
+        let notifications = JSON.parse(localStorage.getItem('libraryNotifications')) || [];
+        let appSubscription = localStorage.getItem('librarySubscription') || 'free';
+
+        // Initialize sample data
+        function initData() {
+            if (books.length === 0) {
+                books = [
+                
+                    { id: 1, title: "The Alchemist", author: "Paulo Coelho", genre: "Fiction", status: "available", isbn: "978-0062315007", avgRating: 4.5, reviewCount: 8 },
+                    { id: 2, title: "Sapiens", author: "Yuval Noah Harari", genre: "History", status: "available", isbn: "978-0062316097", avgRating: 4.7, reviewCount: 12 },
+                    { id: 3, title: "Atomic Habits", author: "James Clear", genre: "Self-Help", status: "borrowed", isbn: "978-0735211292", avgRating: 4.8, reviewCount: 15 },
+                    { id: 4, title: "Clean Code", author: "Robert C. Martin", genre: "Programming", status: "available", isbn: "978-0132350884", avgRating: 4.6, reviewCount: 6 },
+                    { id: 5, title: "1984", author: "George Orwell", genre: "Fiction", status: "available", isbn: "978-0451524935", avgRating: 4.9, reviewCount: 20 },
+                    { id: 6, title: "Python Crash Course", author: "Eric Matthes", genre: "Programming", status: "borrowed", isbn: "978-1593279288", avgRating: 4.4, reviewCount: 9 },
+                    { id: 7, title: "Thinking, Fast and Slow", author: "Daniel Kahneman", genre: "Psychology", status: "available", isbn: "978-0374533557", avgRating: 4.3, reviewCount: 7 },
+                    { id: 8, title: "The Power of Habit", author: "Charles Duhigg", genre: "Self-Help", status: "available", isbn: "978-0812981605", avgRating: 4.6, reviewCount: 11 }
+                    
+                ];
+                localStorage.setItem('libraryBooks', JSON.stringify(books));
+            }
+        }
+
+        // Tab Navigation
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'dashboard') renderDashboard();
+            if (tabName === 'subscribe') renderSubscription();
+            if (tabName === 'books') renderBooks();
+            if (tabName === 'borrow') renderBorrowForm();
+            if (tabName === 'search') renderSearch();
+            if (tabName === 'reviews') renderReviews();
+            if (tabName === 'history') renderHistory();
+            if (tabName === 'notifications') renderNotifications();
+        }
+
+        // Subscription System
+        function renderSubscription() {
+            document.getElementById('currentTier').textContent = appSubscription.toUpperCase();
+            document.getElementById('currentTier').className = `subscription-tier tier-${appSubscription}`;
+        }
+
+        function upgradePlan(tier) {
+            appSubscription = tier;
+            localStorage.setItem('librarySubscription', tier);
+            document.getElementById('subscriptionBadge').textContent = tier.toUpperCase();
+            document.getElementById('subscriptionBadge').className = `subscription-badge tier-${tier}`;
+            alert(`Upgraded to ${tier.toUpperCase()} successfully! 🎉`);
+            renderSubscription();
+        }
+
+        // Search Functionality
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const results = books.filter(book => 
+                book.title.toLowerCase().includes(query) ||
+                book.author.toLowerCase().includes(query) ||
+                book.genre.toLowerCase().includes(query) ||
+                book.isbn.includes(query)
+            );
+            renderSearchResults(results);
+        }
+
+        function renderSearch(query = '') {
+            document.getElementById('searchInput').value = query;
+            performSearch();
+        }
+
+        function renderSearchResults(results) {
+            const grid = document.getElementById('searchResults');
+            grid.innerHTML = results.length ? 
+                results.map(book => `
+                    <div class="book-card ${book.status}">
+                        <h4>${book.title}</h4>
+                        <p><strong>Author:</strong> ${book.author}</p>
+                        <p><strong>Genre:</strong> ${book.genre}</p>
+                        <p><strong>ISBN:</strong> ${book.isbn}</p>
+                        <p><strong>Rating:</strong> ${'★'.repeat(Math.floor(book.avgRating))} (${book.reviewCount} reviews)</p>
+                        <div class="status-badge status-${book.status}">${book.status.toUpperCase()}</div>
+                    </div>
+                `).join('') : '<p style="grid-column: 1/-1; text-align: center; color: #666;">No books found 😔</p>';
+        }
+
+        // Enhanced Dashboard with Notifications
+        function renderDashboard() {
+            checkNotifications();
+            document.getElementById('totalBooks').textContent = books.length;
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('activeBorrows').textContent = transactions.filter(t => t.status === 'borrowed').length;
+            document.getElementById('totalReviews').textContent = reviews.length;
+            renderRandomBook();
+        }
+
+        function checkNotifications() {
+            const now = new Date();
+            notifications = []; // Clear old notifications
+            
+            transactions.forEach(t => {
+                if (t.status === 'borrowed') {
+                    const dueDate = new Date(t.dueDate);
+                    const daysLeft = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysLeft <= 3 && daysLeft > 0) {
+                        notifications.push({
+                            id: Date.now() + Math.random(),
+                            type: 'reminder',
+                            message: `Reminder: "${books.find(b => b.id == t.bookId)?.title}" due in ${daysLeft} days!`,
+                            date: new Date().toLocaleString()
+                        });
+                    } else if (daysLeft <= 0) {
+                        notifications.push({
+                            id: Date.now() + Math.random(),
+                            type: 'overdue',
+                            message: `OVERDUE: "${books.find(b => b.id == t.bookId)?.title}" was due ${Math.abs(daysLeft)} days ago!`,
+                            date: new Date().toLocaleString()
+                        });
+                    }
+                }
+            });
+            
+            localStorage.setItem('libraryNotifications', JSON.stringify(notifications));
+            renderNotificationsArea();
+        }
+
+        function renderNotificationsArea() {
+            const area = document.getElementById('notificationsArea');
+            if (notifications.length > 0) {
+                area.innerHTML = notifications.map(n => 
+                    `<div class="notification">
+                        <strong>${n.type === 'overdue' ? '🚨 OVERDUE' : '⏰ REMINDER'}</strong><br>
+                        ${n.message}<br><small>${n.date}</small>
+                    </div>`
+                ).join('');
+            } else {
+                area.innerHTML = '';
+            }
+        }
+
+        // Review System
+        function renderReviews() {
+            const list = document.getElementById('reviewsList');
+            list.innerHTML = reviews.map(r => `
+                <div class="review-item">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>${r.userName}</strong>
+                        <span class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+                    </div>
+                    <p style="margin: 10px 0; font-style: italic;">"${r.comment}"</p>
+                    <small style="color: #666;">${new Date(r.date).toLocaleDateString()}</small>
+                </div>
+            `).join('') || '<p>No reviews yet. Be the first to review! ⭐</p>';
+        }
+
+        // Registration (Enhanced)
+        function registerUser(event) {
+            event.preventDefault();
+            const user = {
+                id: Date.now(),
+                name: document.getElementById('regName').value,
+                studentId: document.getElementById('regId').value,
+                email: document.getElementById('regEmail').value,
+                course: document.getElementById('regCourse').value,
+                subscription: 'free',
+                joinDate: new Date().toISOString().split('T')[0]
+            };
+            
+            users.push(user);
+            localStorage.setItem('libraryUsers', JSON.stringify(users));
+            alert('User registered successfully!');
+            event.target.reset();
+            renderBorrowForm();
+        }
+
+        // Rest of the functions remain similar but enhanced...
+        function renderBooks() {
+            const grid = document.getElementById('booksGrid');
+            grid.innerHTML = books.map(book => {
+                const isOverdue = transactions.some(t => t.bookId === book.id && t.status === 'borrowed' && new Date(t.dueDate) < new Date());
+                return `
+                    <div class="book-card ${book.status} ${isOverdue ? 'overdue' : ''}">
+                        <h4>${book.title}</h4>
+                        <p><strong>Author:</strong> ${book.author}</p>
+                        <p><strong>Genre:</strong> ${book.genre}</p>
+                        <p><strong>Rating:</strong> ${'★'.repeat(Math.floor(book.avgRating))} (${book.reviewCount} reviews)</p>
+                        <div class="status-badge status-${book.status}">${book.status.toUpperCase()}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Borrow with subscription limits
+        function borrowBook(event) {
+            event.preventDefault();
+            const userId = parseInt(document.getElementById('borrowUser').value);
+            const bookId = parseInt(document.getElementById('borrowBook').value);
+            let days = parseInt(document.getElementById('returnDays').value);
+            
+            const user = users.find(u => u.id === userId);
+            const maxDays = { free: 14, premium: 30, vip: 60 }[user?.subscription || 'free'];
+            days = Math.min(days, maxDays);
+            
+            borrowBookDirect(userId, bookId, days);
+            renderBorrowForm();
+            renderBooks();
+        }
+
+        function returnBook(transactionId) {
+            const transaction = transactions.find(t => t.id === transactionId);
+            if (!transaction) return;
+            
+            // Show review form
+            const book = books.find(b => b.id === transactionId);
+            const user = users.find(u => u.id === transaction.userId);
+            
+            const rating = prompt('Rate this book (1-5 stars):', '5');
+            const comment = prompt('What did you learn from this book?');
+            
+            if (rating && comment) {
+                const review = {
+                    id: Date.now(),
+                    bookId: transaction.bookId,
+                    userId: transaction.userId,
+                    userName: user.name,
+                    rating: parseInt(rating),
+                    comment: comment,
+                    date: new Date().toISOString()
+                };
+                reviews.push(review);
+                
+                // Update book average rating
+                const bookReviews = reviews.filter(r => r.bookId === book.id);
+                book.avgRating = bookReviews.reduce((sum, r) => sum + r.rating, 0) / bookReviews.length || 0;
+                book.reviewCount = bookReviews.length;
+                
+                localStorage.setItem('libraryReviews', JSON.stringify(reviews));
+                localStorage.setItem('libraryBooks', JSON.stringify(books));
+            }
+            
+            book.status = 'available';
+            transaction.status = 'returned';
+            transaction.returnDate = new Date().toISOString();
+            transaction.readingTime = Math.floor(Math.random() * 46) + 5;
+            
+            localStorage.setItem('libraryBooks', JSON.stringify(books));
+            localStorage.setItem('libraryTransactions', JSON.stringify(transactions));
+            
+            renderActiveBorrows();
+            renderReviews();
+            renderHistory();
+        }
+
+        // Initialize App
+        initData();
+        document.getElementById('subscriptionBadge').textContent = appSubscription.toUpperCase();
+        document.getElementById('subscriptionBadge').className = `subscription-badge tier-${appSubscription}`;
+        renderDashboard();
+    </script>
+</body>
+</html>
